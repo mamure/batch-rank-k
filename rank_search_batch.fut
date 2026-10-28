@@ -111,6 +111,31 @@ def rank_search_batch [m][n] (ks: [m]i64) (shp: [m]i64) (ii1: [n]i64) (flat: [n]
       in (ks_next, shp_next, active_next, ii1_next, flat_next, result_next)
   in result
 
+-- Reference baseline: sort each segment independently, then select its
+-- 1-based k-th element. Insertion sort keeps this baseline self-contained;
+-- it is intentionally not intended to compete with GPU radix sort.
+def insertion_sort [n] (xs: [n]f32) : [n]f32 =
+  let ( _, sorted) =
+    loop (i, sorted) = (1i64, copy xs) while i < n do
+      let key = sorted[i]
+      let (j, shifted) =
+        loop (j, shifted) = (i, sorted)
+        while j > 0i64 && shifted[j - 1] > key do
+          (j - 1i64, shifted with [j] = shifted[j - 1])
+      in (i + 1i64, shifted with [j] = key)
+  in sorted
+
+def naive_sort_select [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]f32) : [m]f32 =
+  let offsets = exclusive_offsets shp
+  let idxs = iota m
+  in map
+       (\i ->
+         let start = offsets[i]
+         let segment = flat[start : start + shp[i]]
+         let sorted = insertion_sort segment
+         in sorted[ks[i] - 1i64])
+       idxs
+
 entry run_batch_rank_search [m][n]
   (ks: [m]i64)
   (shp: [m]i64)
@@ -118,3 +143,10 @@ entry run_batch_rank_search [m][n]
   (flat: [n]f32)
   : [m]f32 =
   rank_search_batch ks shp ii1 flat
+
+entry run_naive_sort_select [m][n]
+  (ks: [m]i64)
+  (shp: [m]i64)
+  (flat: [n]f32)
+  : [m]f32 =
+  naive_sort_select ks shp flat
