@@ -85,7 +85,7 @@ def filter_active_elements [m][n]
         else if kinds[sgm] == 2i64 then x > pivots[sgm]
         else false)
       pairs
-  in (map (.0) kept, map (.1) kept)
+  in unzip kept
 
 def rank_search_quickselect [m][n] (ks: [m]i64) (shp: [m]i64) (ids: [n]i64) (flat: [n]f32) : [m]f32 =
   let initial_result = replicate m 0f32

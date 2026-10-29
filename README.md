@@ -4,3 +4,7 @@ Flattened implementation of a **batch rank-search-k** algorithm (selection by ra
 
 TODO:
 explain how to run/get results
+
+Setup:
+`futhark pkg add github.com/diku-dk/sorts`
+`futhark pkg sync`

@@ -1,6 +1,5 @@
 import "src/reference"
 import "src/quickselect"
-import "src/radixselect"
 import "src/shared"
 
 -- m is number of segments.
