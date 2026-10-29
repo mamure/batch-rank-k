@@ -21,5 +21,5 @@ def main : i32 =
     let ids = get_sgm_ids shp flat
     let _ = trace (ids)
     let _ = trace (rank_search_reference ks shp flat)
-    let _ = trace (rank_search_quickselect ks shp ids flat)
+    let _ = trace (rank_search_quickselect ks shp flat)
     in 0
