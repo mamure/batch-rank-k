@@ -1,4 +1,3 @@
-import "../src/quickselect"
 import "../src/reference"
 
 -- Becuase Futhark's testing framework seemingly does not support empty arrays,
@@ -8,7 +7,7 @@ def main [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]f32) : []f32 =
     let shp = shp[1 : m]
     let ks = ks[1 : m]
     let flat = flat[1 : n]
-    let res = reference ks shp flat
+    let res = reference_f32 ks shp flat
     in [-1] ++ res
 
 -- ==

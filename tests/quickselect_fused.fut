@@ -7,7 +7,7 @@ def main [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]f32) : []f32 =
     let shp = shp[1 : m]
     let ks = ks[1 : m]
     let flat = flat[1 : n]
-    let res = quickselect_fused ks shp flat
+    let res = quickselect_fused_f32 ks shp flat
     in [-1] ++ res
 
 -- ==

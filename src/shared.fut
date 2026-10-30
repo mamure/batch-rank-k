@@ -24,23 +24,23 @@ def get_sgm_ids [m][n] 't (shp: [m]i64) (_flat: [n]t) : [n]i64 =
   in scan (\v1 v2 -> (if v2 != 0i64 then v2 else v1 + v2)) 0i64 vals -- sgm scan but values are also flags
 
 
-def choose_pivots_last [m][n] (shp: [m]i64) (flat: [n]f32) : [m]f32 =
+def choose_pivots_last [m][n] 't (ne: t) (shp: [m]i64) (flat: [n]t) : [m]t =
   let (_, ends) = get_sgm_starts_and_ends shp
   in map
-       (\i -> if shp[i] == 0i64 then 0f32
+       (\i -> if shp[i] == 0i64 then ne
               else flat[ends[i] - 1i64] )
        (iota m)
 
-def choose_pivots_first [m][n] (shp: [m]i64) (flat: [n]f32) : [m]f32 =
+def choose_pivots_first [m][n] 't (ne: t) (shp: [m]i64) (flat: [n]t) : [m]t =
   let (starts, _) = get_sgm_starts_and_ends shp
   in map
-       (\i -> if shp[i] == 0i64 then 0f32
+       (\i -> if shp[i] == 0i64 then ne
               else flat[starts[i]] )
        (iota m)
 
-def choose_pivots_middle [m][n] (shp: [m]i64) (flat: [n]f32) : [m]f32 =
+def choose_pivots_middle [m][n] 't (ne: t) (shp: [m]i64) (flat: [n]t) : [m]t =
   let (starts, ends) = get_sgm_starts_and_ends shp
   in map
-       (\i -> if shp[i] == 0i64 then 0f32
+       (\i -> if shp[i] == 0i64 then ne
               else flat[starts[i] + (ends[i] - starts[i]) / 2i64] )
        (iota m)

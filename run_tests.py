@@ -11,7 +11,7 @@ def run_test(variant):
         check=True
     )
 
-# Runs a test with a randomly generated dataset,
+# Runs a test with a randomly generated dataset
 # that is verfied against the reference implementation.
 def run_random_test(variant):
     run_bench.make_random_input(seed=SEED, m=1000, shp_max=10)

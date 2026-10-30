@@ -5,4 +5,4 @@ import "../src/smartselect"
 -- output @ ../dataset.out
 
 def main [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]f32) : []f32 =
-  smartselect ks shp flat
+  smartselect_f32 ks shp flat
