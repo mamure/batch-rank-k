@@ -1,3 +1,5 @@
--- TODO modify the quickselect implementation to use the median of medians
--- AKAK smart select from this paper.
+import "shared"
+
+-- Like quickselect_fused,
+-- but uses a smarter pivot selection strategy that guarantees O(n).
 -- https://tildesites.bowdoin.edu/~ltoma/teaching/cs231/2018spring/Lectures/selection.pdf
