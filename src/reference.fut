@@ -15,3 +15,7 @@ def reference [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]f32) : [m]f32 =
            in sorted[ks[i] - 1i64]
          else -1f32)
        (iota m)
+
+
+def main [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]f32) : []f32 =
+  reference ks shp flat
