@@ -1,0 +1,4 @@
+-- TODO
+-- Fuse the maps from the other quickselect implementation
+-- and see if it actually makes a performance difference,
+-- or if the compiler already does this.

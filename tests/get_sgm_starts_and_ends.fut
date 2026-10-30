@@ -1,0 +1,87 @@
+import "../src/shared"
+
+-- Becuase Futhark's testing framework seemingly does not support empty arrays,
+-- We prepend every array with a dummy value (-1) to avoid empty arrays in the input and output.
+-- These are removed/added before and after the actual computation.
+def main [m] (shp: [m]i64) : ([]i64, []i64) =
+    let shp = shp[1 : m]
+    let (starts, ends) = get_sgm_starts_and_ends shp
+    in ([-1] ++ starts, [-1] ++ ends)
+
+
+-- ==
+-- "Empty input"
+-- compiled input { [-1i64] }
+-- output { [-1i64] [-1i64] }
+--
+-- "Basic example"
+-- compiled input { [-1i64,3i64,2i64,4i64] }
+-- output { [-1i64,0i64,3i64,5i64] [-1i64,3i64,5i64,9i64] }
+--
+-- "Single segment of length one"
+-- compiled input { [-1i64,1i64] }
+-- output { [-1i64,0i64] [-1i64,1i64] }
+--
+-- "Single segment of length five"
+-- compiled input { [-1i64,5i64] }
+-- output { [-1i64,0i64] [-1i64,5i64] }
+--
+-- "Multiple segments of length one"
+-- compiled input { [-1i64,1i64,1i64,1i64,1i64] }
+-- output { [-1i64,0i64,1i64,2i64,3i64] [-1i64,1i64,2i64,3i64,4i64] }
+--
+-- "Multiple equal-length segments"
+-- compiled input { [-1i64,2i64,2i64,2i64,2i64] }
+-- output { [-1i64,0i64,2i64,4i64,6i64] [-1i64,2i64,4i64,6i64,8i64] }
+--
+-- "Single empty segment"
+-- compiled input { [-1i64,0i64] }
+-- output { [-1i64,0i64] [-1i64,0i64] }
+--
+-- "All segments empty"
+-- compiled input { [-1i64,0i64,0i64,0i64] }
+-- output { [-1i64,0i64,0i64,0i64] [-1i64,0i64,0i64,0i64] }
+--
+-- "Empty segment in the middle"
+-- compiled input { [-1i64,3i64,0i64,2i64] }
+-- output { [-1i64,0i64,3i64,3i64] [-1i64,3i64,3i64,5i64] }
+--
+-- "Empty segments at the beginning and middle"
+-- compiled input { [-1i64,0i64,3i64,0i64,2i64,0i64] }
+-- output { [-1i64,0i64,0i64,3i64,3i64,5i64] [-1i64,0i64,3i64,3i64,5i64,5i64] }
+--
+-- "Multiple consecutive empty segments"
+-- compiled input { [-1i64,2i64,0i64,0i64,0i64,4i64] }
+-- output { [-1i64,0i64,2i64,2i64,2i64,2i64] [-1i64,2i64,2i64,2i64,2i64,6i64] }
+--
+-- "Empty segments surrounding a nonempty segment"
+-- compiled input { [-1i64,0i64,0i64,5i64,0i64] }
+-- output { [-1i64,0i64,0i64,0i64,5i64] [-1i64,0i64,0i64,5i64,5i64] }
+--
+-- "Alternating empty and nonempty segments"
+-- compiled input { [-1i64,1i64,0i64,1i64,0i64,1i64] }
+-- output { [-1i64,0i64,1i64,1i64,2i64,2i64] [-1i64,1i64,1i64,2i64,2i64,3i64] }
+--
+-- "Uneven segment lengths"
+-- compiled input { [-1i64,7i64,1i64,3i64,2i64] }
+-- output { [-1i64,0i64,7i64,8i64,11i64] [-1i64,7i64,8i64,11i64,13i64] }
+--
+-- "Large uneven segments with an empty segment"
+-- compiled input { [-1i64,10i64,5i64,0i64,8i64] }
+-- output { [-1i64,0i64,10i64,15i64,15i64] [-1i64,10i64,15i64,15i64,23i64] }
+--
+-- "Increasing segment lengths"
+-- compiled input { [-1i64,1i64,2i64,3i64,4i64,5i64] }
+-- output { [-1i64,0i64,1i64,3i64,6i64,10i64] [-1i64,1i64,3i64,6i64,10i64,15i64] }
+--
+-- "Decreasing segment lengths"
+-- compiled input { [-1i64,5i64,4i64,3i64,2i64,1i64] }
+-- output { [-1i64,0i64,5i64,9i64,12i64,14i64] [-1i64,5i64,9i64,12i64,14i64,15i64] }
+--
+-- "Many equal-length segments"
+-- compiled input { [-1i64,10i64,10i64,10i64,10i64,10i64] }
+-- output { [-1i64,0i64,10i64,20i64,30i64,40i64] [-1i64,10i64,20i64,30i64,40i64,50i64] }
+--
+-- "Increasing lengths across many segments"
+-- compiled input { [-1i64,1i64,2i64,3i64,4i64,5i64,6i64,7i64,8i64] }
+-- output { [-1i64,0i64,1i64,3i64,6i64,10i64,15i64,21i64,28i64] [-1i64,1i64,3i64,6i64,10i64,15i64,21i64,28i64,36i64] }

@@ -1,0 +1,3 @@
+-- TODO modify the quickselect implementation to use the median of medians
+-- AKAK smart select from this paper.
+-- https://tildesites.bowdoin.edu/~ltoma/teaching/cs231/2018spring/Lectures/selection.pdf
