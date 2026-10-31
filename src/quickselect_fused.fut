@@ -19,7 +19,7 @@ def quickselect_fused [m][n] 't
   let (_, _, _, _, _, result) =
     loop (ks, shp, active, ids, flat, result) = (ks, shp, active, ids, flat, result)
     while (any (== true) active) do
-      let ends = scan (+) 0i64 shp
+      let (_, ends) = get_sgm_starts_and_ends shp
       let fn_pivot = \i ->
         if shp[i] == 0i64 then ne
         else flat[ends[i] - 1i64]
