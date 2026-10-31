@@ -18,17 +18,16 @@ def quickselect [m][n] 't
   : [m]t =
   let ids = get_sgm_ids shp flat
   let result = replicate m ne
-  let active = map (i64.> 0i64) shp
-  let (_, _, _, _, _, result) =
-    loop (ks, shp, active, ids, flat, result) = (ks, shp, active, ids, flat, result)
-    while (any (== true) active) do
+  let (_, _, _, _, result) =
+    loop (ks, shp, ids, flat, result) = (ks, shp, ids, flat, result)
+    while (length flat i64.> 0i64) do
       let (_, ends) = get_sgm_starts_and_ends shp
       let fn_pivot = \i ->
         if shp[i] == 0i64 then ne
         else flat[ends[i] - 1i64]
 
       let pivots = map fn_pivot (iota m)
-      in partition (<) (<=) (>) pivots ks shp active ids flat result
+      in partition (<) (<=) (>) pivots ks shp ids flat result
   in result
 
 
