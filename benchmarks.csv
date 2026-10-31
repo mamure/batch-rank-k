@@ -1,0 +1,13 @@
+m,shape_max,variant,time,ci_lo,ci_hi
+1000,10,reference,806.0,802.3,812.9
+1000,10,quickselect,119.0,117.9,119.9
+1000,10,quickselect_fused,87.0,86.0,88.0
+1000,10,smartselect,155.0,154.0,156.2
+10,1000,reference,249.0,246.4,254.3
+10,1000,quickselect,39.0,38.5,39.0
+10,1000,quickselect_fused,40.0,39.5,39.9
+10,1000,smartselect,41.0,40.4,41.0
+1000,1000,reference,42578.0,42281.8,43171.0
+1000,1000,quickselect,7940.0,7870.7,8034.3
+1000,1000,quickselect_fused,7819.0,7774.2,7879.5
+1000,1000,smartselect,10334.0,10201.0,10753.1
