@@ -26,5 +26,6 @@ def reference_f32 [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]f32) : [m]f32 =
         in sorted[ks[i] - 1i64]
       else -1f32)
 
+
 def main [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]f32) : []f32 =
   reference_f32 ks shp flat

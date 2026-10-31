@@ -30,5 +30,5 @@ if __name__ == "__main__":
     run_random_test("quickselect")
     run_test("quickselect_fused")
     run_random_test("quickselect_fused")
-    #run_test("smartselect")
-    #run_random_test("smartselect")
+    run_test("smartselect")
+    run_random_test("smartselect")

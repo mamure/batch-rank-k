@@ -53,9 +53,9 @@ def parse_output():
 if __name__ == "__main__":
     # TODO run multiple times with increasing m and maybe shape_max
     # TODO collect the metrics into a csv and plot them
-    make_random_input(seed=SEED, m=1000, shp_max=1000)
+    make_adversarial_input(seed=SEED, m=1000, shp_max=1000)
     make_output()
     run_bench("reference")
     run_bench("quickselect")
     run_bench("quickselect_fused")
-    #run_bench("smartselect")
+    run_bench("smartselect")

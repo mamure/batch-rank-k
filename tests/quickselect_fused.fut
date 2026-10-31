@@ -70,3 +70,7 @@ def main [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]f32) : []f32 =
 -- "Empty segments at beginning and end"
 -- compiled input { [-1i64,-1i64,1i64,-1i64] [-1i64,0i64,3i64,0i64] [-1f32,7f32,2f32,9f32] }
 -- output { [-1f32,-1f32,2f32,-1f32] }
+--
+-- "All segments empty"
+-- compiled input { [-1i64,-1i64,-1i64,-1i64] [-1i64,0i64,0i64,0i64] [-1f32] }
+-- output { [-1f32,-1f32,-1f32,-1f32] }

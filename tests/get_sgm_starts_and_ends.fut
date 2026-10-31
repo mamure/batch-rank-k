@@ -15,8 +15,8 @@ def main [m] (shp: [m]i64) : ([]i64, []i64) =
 -- output { [-1i64] [-1i64] }
 --
 -- "Basic example"
--- compiled input { [-1i64,3i64,2i64,4i64] }
--- output { [-1i64,0i64,3i64,5i64] [-1i64,3i64,5i64,9i64] }
+-- compiled input { [-1i64,3i64,2i64,0i64,4i64] }
+-- output { [-1i64,0i64,3i64,5i64,5i64] [-1i64,3i64,5i64,5i64,9i64] }
 --
 -- "Single segment of length one"
 -- compiled input { [-1i64,1i64] }
