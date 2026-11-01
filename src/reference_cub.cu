@@ -8,6 +8,8 @@
 #include <numeric>
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #define CUDA_CHECK(call)                                             \
     do {                                                             \
@@ -19,6 +21,29 @@
         }                                                            \
     } while (0)
 
+template <typename T>
+std::vector<T> parse_array(const std::string& line, const std::string& suffix) {
+    std::vector<T> result;
+    std::stringstream ss(line);
+
+    char c;
+    ss >> c; // '['
+
+    while (ss >> std::ws && ss.peek() != ']') {
+        T value;
+        ss >> value;
+        if (!ss) throw std::runtime_error("Invalid number");
+
+        // Skip the type suffix (i64 or f32).
+        while (ss.get(c) && c != ',' && c != ']') {}
+
+        result.push_back(value);
+
+        if (c == ']') break;
+    }
+
+    return result;
+}
 
 void parse_input(
     const std::string& filename,
@@ -26,21 +51,36 @@ void parse_input(
     std::vector<int>& shp,
     std::vector<float>& flat)
 {
-    // TODO:
-    // Parse dataset.in.
-    //
-    // It contains three lists:
-    //   1. ks
-    //   2. shp
-    //   3. flat
+    std::ifstream infile(filename);
+    if (!infile.is_open()) {
+        throw std::runtime_error("Could not open file: " + filename);
+    }
+
+    std::string line;
+    if (std::getline(infile, line)) {
+        ks = parse_array<int>(line, "i64");
+    }
+    if (std::getline(infile, line)) {
+        shp = parse_array<int>(line, "i64");
+    }
+    if (std::getline(infile, line)) {
+        flat = parse_array<float>(line, "f32");
+    }
 }
 
 void parse_output(
     const std::string& filename,
     std::vector<float>& expected)
 {
-    // TODO:
-    // Parse dataset.out.
+    std::ifstream infile(filename);
+    if (!infile.is_open()) {
+        throw std::runtime_error("Could not open file: " + filename);
+    }
+
+    std::string line;
+    if (std::getline(infile, line)) {
+        expected = parse_array<float>(line, "f32");
+    }
 }
 
 __global__ void gather_kth(
@@ -63,18 +103,24 @@ int main()
     std::vector<float> h_flat;
     std::vector<float> h_expected;
 
+    printf("Parsing input and output datasets...\n");
     parse_input("dataset.in", h_ks, h_shp, h_flat);
     parse_output("dataset.out", h_expected);
 
+    printf("Input sizes: ks=%zu, shp=%zu, flat=%zu, expected=%zu\n",
+           h_ks.size(), h_shp.size(), h_flat.size(), h_expected.size());
+
+    if (h_ks.empty() || h_shp.empty() || h_flat.empty() || h_expected.empty()) {
+        fprintf(stderr, "Empty dataset.\n");
+        return EXIT_FAILURE;
+    }
+    if (h_ks.size() != h_shp.size() || h_ks.size() != h_expected.size()) {
+        fprintf(stderr, "Dataset sizes do not match.\n");
+        return EXIT_FAILURE;
+    }
+
     const int m = (int)h_shp.size();
     const int n = (int)h_flat.size();
-
-    // Start benchmarking
-    cudaEvent_t start_event;
-    cudaEvent_t stop_event;
-    CUDA_CHECK(cudaEventCreate(&start_event));
-    CUDA_CHECK(cudaEventCreate(&stop_event));
-    CUDA_CHECK(cudaEventRecord(start_event));
 
     std::vector<int> h_starts(m);
     std::vector<int> h_ends(m);
@@ -125,6 +171,15 @@ int main()
         sizeof(float) * n,
         cudaMemcpyHostToDevice));
 
+
+    // Start benchmarking
+    printf("Starting benchmark...\n");
+    cudaEvent_t start_event;
+    cudaEvent_t stop_event;
+    CUDA_CHECK(cudaEventCreate(&start_event));
+    CUDA_CHECK(cudaEventCreate(&stop_event));
+    CUDA_CHECK(cudaEventRecord(start_event));
+
     // Allocate temporary storage for CUB.
     void* d_storage = nullptr;
     size_t storage_size = 0;
@@ -164,7 +219,7 @@ int main()
     CUDA_CHECK(cudaEventRecord(stop_event));
     CUDA_CHECK(cudaEventSynchronize(stop_event));
     CUDA_CHECK(cudaEventElapsedTime(&elapsed_ms, start_event,stop_event));
-    printf("GPU time: %.4f ms\n", elapsed_ms);
+    printf("GPU time: %.4f us\n", elapsed_ms * 1000.0f);
 
     // Check for correntness.
     std::vector<float> h_result(m);

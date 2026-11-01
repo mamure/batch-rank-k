@@ -29,6 +29,7 @@ def get_sgm_starts_and_ends [m] (shp: [m]i64) : ([m]i64, [m]i64) =
 -- Result:
 -- [0, 0, 0, 1, 1, 3, 3, 3, 3]
 def get_sgm_ids [m][n] 't (shp: [m]i64) (_flat: [n]t) : [n]i64 =
-  let (starts, _) =  get_sgm_starts_and_ends shp
-  let vals = scatter (replicate n 0i64) starts (iota m)
-  in scan (\v1 v2 -> (if v2 != 0i64 then v2 else v1 + v2)) 0i64 vals -- sgm scan but values are also flags
+  let (starts, _) = get_sgm_starts_and_ends shp
+  let vals = hist (max (i64.<)) 0i64 n starts (map (+ 1i64) (iota m))
+  let ids = scan (\a b -> if b == 0i64 then a else b) 0i64 vals
+  in map (\x -> x - 1i64) ids

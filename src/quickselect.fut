@@ -20,7 +20,7 @@ def quickselect [m][n] 't
   let result = replicate m ne
   let (_, _, _, _, result) =
     loop (ks, shp, ids, flat, result) = (ks, shp, ids, flat, result)
-    while (length flat i64.> 0i64) do
+    while any (i64.> 0i64) shp do
       let (_, ends) = get_sgm_starts_and_ends shp
       let fn_pivot = \i ->
         if shp[i] == 0i64 then ne

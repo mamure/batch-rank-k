@@ -15,8 +15,8 @@ def median_of_3 't ((<): t -> t -> bool) (a: t) (b: t) (c: t) : t =
   let (lo, hi) = minmax (<) a b
   in max (<) lo (min (<) hi c)
 def median_of_4 't ((<): t -> t -> bool) (a: t) (b: t) (c: t) (d: t) : t =
-  let (ab_lo, ab_hi) = minmax (<) a b
-  let (cd_lo, cd_hi) = minmax (<) c d
+  let ab_lo = min (<) a b
+  let cd_lo = min (<) c d
   in max (<) ab_lo cd_lo
 def median_of_5 't ((<): t -> t -> bool) (a: t) (b: t) (c: t) (d: t) (e: t) : t =
   let (ab_lo, ab_hi) = minmax (<) a b
@@ -24,31 +24,30 @@ def median_of_5 't ((<): t -> t -> bool) (a: t) (b: t) (c: t) (d: t) (e: t) : t 
   let lo = max (<) ab_lo cd_lo
   let hi = min (<) ab_hi cd_hi
   in median_of_3 (<) lo hi e
-def median_of_lteq_5 [n] 't ((<): t -> t -> bool) (xs: [n]t) : t =
+def median_of_lteq_5 [n] 't ((<): t -> t -> bool) (flat: [n]t) : t =
   match n
-    case 1i64 -> xs[0]
-    case 2i64 -> min (<) xs[0] xs[1]
-    case 3i64 -> median_of_3 (<) xs[0] xs[1] xs[2]
-    case 4i64 -> median_of_4 (<) xs[0] xs[1] xs[2] xs[3]
-    case _    -> median_of_5 (<) xs[0] xs[1] xs[2] xs[3] xs[4]
+    case 1i64 -> flat[0]
+    case 2i64 -> min (<) flat[0] flat[1]
+    case 3i64 -> median_of_3 (<) flat[0] flat[1] flat[2]
+    case 4i64 -> median_of_4 (<) flat[0] flat[1] flat[2] flat[3]
+    case _    -> median_of_5 (<) flat[0] flat[1] flat[2] flat[3] flat[4]
 
-def medians_per_group [n] 't ((<): t -> t -> bool) (flat: [n]t) : [(n+4)/5]t =
+def medians_per_group [n] 't ((<): t -> t -> bool) (flat: [n]t) (s: i64) (e: i64) : (i64, []t) =
+  let num_groups = (e - s + 4i64) / 5i64
   let fn_group = \g ->
-    let start = g * 5i64
-    let end = start + min (i64.<) 5i64 (n - start)
+    let start = s + g * 5i64
+    let end = start + min (i64.<) 5i64 (e - start)
     in median_of_lteq_5 (<) flat[start : end]
-  let num_groups = (n + 4i64) / 5i64
-  in map fn_group (iota num_groups)
 
--- Repeatedly computes the median of medians until the result is a single value.
+  in (num_groups, map fn_group (iota num_groups))
+
+-- Repeatedly computes the group of 5 median of medians until the result is a single value.
 -- This is a heuristic approximation of the median,
--- but it is guaranteed to be within the 30th and 70th percentile.
-def median_of_medians [n] 't ((<): t -> t -> bool) (flat: [n]t) : t =
-  let result =
-    loop mom = medians_per_group (<) flat
-    while length mom > 5 do medians_per_group (<) mom
+def median_of_medians [n] 't ((<): t -> t -> bool) (flat: [n]t) (s: i64) (e: i64) : t =
+  let (_, result) =
+    loop (len, mom) = (medians_per_group (<) flat s e)
+    while len > 5 do  medians_per_group (<) mom 0 len
   in median_of_lteq_5 (<) result
-
 
 def smartselect [m][n] 't
   (ne: t)
@@ -63,11 +62,11 @@ def smartselect [m][n] 't
   let result = replicate m ne
   let (_, _, _, _, result) =
     loop (ks, shp, ids, flat, result) = (ks, shp, ids, flat, result)
-    while (length flat i64.> 0i64) do
+    while any (i64.> 0i64) shp do
       let (starts, ends) = get_sgm_starts_and_ends shp
       let fn_pivot = \i ->
         if shp[i] == 0i64 then ne
-        else median_of_medians (<) flat[starts[i] : ends[i]]
+        else median_of_medians (<) flat starts[i] ends[i]
 
       let pivots = map fn_pivot (iota m)
       in partition_fused (<) (<=) (>) pivots ks shp ids flat result
