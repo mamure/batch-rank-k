@@ -3,7 +3,7 @@
 Flattened implementation of a **batch rank-search-k** algorithm (batched selection by rank) for the PMPH course project.  
 
 We present 5 variants:
-- A naive CUDA CUB implementation, `cub`, that uses `DeviceSegmentedRadixSort` to sort each segment, then selectss the kth element from each segment.
+- A naive CUDA CUB implementation, `cub`, that uses `DeviceSegmentedRadixSort` to sort each segment, then selects the kth element from each segment.
 - A naive futhark implementation, `reference`, that uses a radix sort from `github.com/diku-dk/sorts` to sort each segment, then selects the kth element from each segment.
 - A quickselect implementation, `quickselect`, that uses last element in each segment as pivot. Based on the derivation in the report.
 - A quickselect implementation, `quickselect_fused` that has manually fused some `map` operations from the `quickselect` partition scheme.
@@ -14,5 +14,5 @@ Use either of the following to run the tests or benchmarks respectively.
 `python3 run_tests.py`  
 `python3 run_bench.py`  
 
-To analze and plot the benchmark results, use:  
+To analyze and plot the benchmark results, use:  
 `python3 run_plot.py`  
