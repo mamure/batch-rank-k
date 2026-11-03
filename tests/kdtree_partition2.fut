@@ -1,0 +1,143 @@
+import "../src/kdtree"
+
+-- Becuase Futhark's testing framework seemingly does not support empty arrays,
+-- We prepend every array with a dummy value (-1) to avoid empty arrays in the input and output.
+-- These are removed/added before and after the actual computation.
+def main [m][n][d] (shp: [m]i64) (points: [n][d]f32) : ([]i64,[][d]f32) =
+  let shp = shp[1 : m]
+  let points = points[1 : n]
+  let axis = get_max_spread_axis points
+  let medians = get_medians shp points axis
+  let (shp', points') = partition2 shp points medians axis
+  in ([-1] ++ shp', [replicate d (-1f32)] ++ points')
+
+-- ==
+-- "Single segment"
+-- compiled input {
+--   [-1i64,4i64]
+--   [[-1f32,-1f32],[7f32,1f32],[2f32,2f32],[5f32,3f32],[1f32,4f32]]
+-- }
+-- output {
+--   [-1i64,1i64,3i64]
+--   [[-1f32,-1f32],[1f32,4f32],[7f32,1f32],[2f32,2f32],[5f32,3f32]]
+-- }
+--
+-- "Two segments"
+-- compiled input {
+--   [-1i64,4i64,4i64]
+--   [[-1f32,-1f32],[7f32,1f32],[2f32,2f32],[5f32,3f32],[1f32,4f32],[9f32,5f32],[6f32,6f32],[8f32,7f32],[3f32,8f32]]
+-- }
+-- output {
+--   [-1i64,1i64,3i64,1i64,3i64]
+--   [[-1f32,-1f32],[1f32,4f32],[7f32,1f32],[2f32,2f32],[5f32,3f32],[3f32,8f32],[9f32,5f32],[6f32,6f32],[8f32,7f32]]
+-- }
+--
+-- "Single-element segments"
+-- compiled input {
+--   [-1i64,1i64,1i64,1i64]
+--   [[-1f32,-1f32],[5f32,1f32],[2f32,2f32],[9f32,3f32]]
+-- }
+-- output {
+--   [-1i64,0i64,1i64,0i64,1i64,0i64,1i64]
+--   [[-1f32,-1f32],[5f32,1f32],[2f32,2f32],[9f32,3f32]]
+-- }
+--
+-- "Unsorted segments"
+-- compiled input {
+--   [-1i64,4i64,3i64]
+--   [[-1f32,-1f32],[9f32,1f32],[1f32,2f32],[7f32,3f32],[3f32,4f32],[8f32,5f32],[2f32,6f32],[6f32,7f32]]
+-- }
+-- output {
+--   [-1i64,1i64,3i64,1i64,2i64]
+--   [[-1f32,-1f32],[1f32,2f32],[9f32,1f32],[7f32,3f32],[3f32,4f32],[2f32,6f32],[8f32,5f32],[6f32,7f32]]
+-- }
+--
+-- "Repeated values"
+-- compiled input {
+--   [-1i64,5i64,4i64]
+--   [[-1f32,-1f32],[4f32,1f32],[2f32,2f32],[2f32,3f32],[8f32,4f32],[5f32,5f32],[5f32,6f32],[1f32,7f32],[5f32,8f32],[5f32,9f32]]
+-- }
+-- output {
+--   [-1i64,2i64,3i64,1i64,3i64]
+--   [[-1f32,-1f32],[4f32,1f32],[2f32,2f32],[2f32,3f32],[8f32,4f32],[5f32,5f32],[5f32,6f32],[1f32,7f32],[5f32,8f32],[5f32,9f32]]
+-- }
+--
+-- "Negative and positive values"
+-- compiled input {
+--   [-1i64,3i64,3i64]
+--   [[-1f32,-1f32],[-5f32,1f32],[3f32,2f32],[0f32,3f32],[-2f32,4f32],[8f32,5f32],[1f32,6f32]]
+-- }
+-- output {
+--   [-1i64,1i64,2i64,1i64,2i64]
+--   [[-1f32,-1f32],[-5f32,1f32],[3f32,2f32],[0f32,3f32],[-2f32,4f32],[8f32,5f32],[1f32,6f32]]
+-- }
+--
+-- "Empty segment at beginning"
+-- compiled input {
+--   [-1i64,0i64,3i64,2i64]
+--   [[-1f32,-1f32],[7f32,1f32],[2f32,2f32],[9f32,3f32],[8f32,4f32],[1f32,5f32]]
+-- }
+-- output {
+--   [-1i64,0i64,0i64,1i64,2i64,0i64,2i64]
+--   [[-1f32,-1f32],[2f32,2f32],[7f32,1f32],[9f32,3f32],[8f32,4f32],[1f32,5f32]]
+-- }
+--
+-- "Empty segment in middle"
+-- compiled input {
+--   [-1i64,3i64,0i64,2i64]
+--   [[-1f32,-1f32],[7f32,1f32],[2f32,2f32],[9f32,3f32],[8f32,4f32],[1f32,5f32]]
+-- }
+-- output {
+--   [-1i64,1i64,2i64,0i64,0i64,0i64,2i64]
+--   [[-1f32,-1f32],[2f32,2f32],[7f32,1f32],[9f32,3f32],[8f32,4f32],[1f32,5f32]]
+-- }
+--
+-- "Empty segment at end"
+-- compiled input {
+--   [-1i64,3i64,2i64,0i64]
+--   [[-1f32,-1f32],[7f32,1f32],[2f32,2f32],[9f32,3f32],[8f32,4f32],[1f32,5f32]]
+-- }
+-- output {
+--   [-1i64,1i64,2i64,0i64,2i64,0i64,0i64]
+--   [[-1f32,-1f32],[2f32,2f32],[7f32,1f32],[9f32,3f32],[8f32,4f32],[1f32,5f32]]
+-- }
+--
+-- "All segments empty"
+-- compiled input {
+--   [-1i64,0i64,0i64,0i64]
+--   [[-1f32,-1f32]]
+-- }
+-- output {
+--   [-1i64,0i64,0i64,0i64,0i64,0i64,0i64]
+--   [[-1f32,-1f32]]
+-- }
+--
+-- "No segments"
+-- compiled input {
+--   [-1i64]
+--   [[-1f32,-1f32]]
+-- }
+-- output {
+--   [-1i64]
+--   [[-1f32,-1f32]]
+-- }
+--
+-- "Empty points with nonempty segments"
+-- compiled input {
+--   [-1i64,0i64,0i64,0i64]
+--   [[-1f32,-1f32]]
+-- }
+-- output {
+--   [-1i64,0i64,0i64,0i64,0i64,0i64,0i64]
+--   [[-1f32,-1f32]]
+-- }
+--
+-- "One-dimensional points"
+-- compiled input {
+--   [-1i64,4i64]
+--   [[-1f32],[7f32],[2f32],[5f32],[1f32]]
+-- }
+-- output {
+--   [-1i64,1i64,3i64]
+--   [[-1f32],[1f32],[7f32],[2f32],[5f32]]
+-- }

@@ -4,7 +4,7 @@ import run_bench
 
 
 SEED = 42
-BACKEND = "cuda"
+BACKEND = "c"
 
 
 def run_test(variant):
@@ -30,6 +30,9 @@ if __name__ == "__main__":
 
     run_test("get_group_ids")
     run_test("get_group_starts_and_ends")
+
+    run_test("kdtree_partition2")
+    run_test("kdtree")
 
     run_test("reference")
     run_test("quickselect")
