@@ -4,7 +4,7 @@ import run_bench
 
 
 SEED = 42
-BACKEND = "c"
+BACKEND = "cuda"
 
 
 def run_test(variant):
