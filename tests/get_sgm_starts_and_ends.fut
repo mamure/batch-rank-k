@@ -4,9 +4,9 @@ import "../src/shared"
 -- We prepend every array with a dummy value (-1) to avoid empty arrays in the input and output.
 -- These are removed/added before and after the actual computation.
 def main [m] (shp: [m]i64) : ([]i64, []i64) =
-    let shp = shp[1 : m]
-    let (starts, ends) = get_sgm_starts_and_ends shp
-    in ([-1] ++ starts, [-1] ++ ends)
+  let shp = shp[1 : m]
+  let (starts, ends) = get_sgm_starts_and_ends shp
+  in ([-1] ++ starts, [-1] ++ ends)
 
 
 -- ==

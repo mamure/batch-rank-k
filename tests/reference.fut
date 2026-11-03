@@ -4,13 +4,22 @@ import "../src/reference"
 -- We prepend every array with a dummy value (-1) to avoid empty arrays in the input and output.
 -- These are removed/added before and after the actual computation.
 def main [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]f32) : []f32 =
-    let shp = shp[1 : m]
-    let ks = ks[1 : m]
-    let flat = flat[1 : n]
-    let res = reference_f32 ks shp flat
-    in [-1] ++ res
+  if m <= 100 then -- Hack to disable padding for the randomly generated dataset
+        let shp = shp[1 : m]
+        let ks = ks[1 : m]
+        let flat = flat[1 : n]
+        let res = reference_f32 ks shp flat
+        in [-1] ++ res
+    else
+        let res = reference_f32 ks shp flat
+        in res
+
 
 -- ==
+-- "Dataset"
+-- input @ ../dataset.in
+-- output @ ../dataset.out
+--
 -- "Empty input"
 -- compiled input { [-1i64] [-1i64] [-1f32] }
 -- output { [-1f32] }

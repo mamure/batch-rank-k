@@ -25,28 +25,28 @@ markers = {
 
 experiments = [
     {
-        "title": "Random: Number of segments = 1000",
-        "xlabel": "Max segment size",
+        "title": "Random: Number of segments = 100",
+        "xlabel": "Segment size",
         "ax": axes[0, 0],
         "type": "random",
-        "x": "shape_max",
+        "x": "shp_max",
     },
     {
-        "title": "Random: Max segment size = 1000",
+        "title": "Random: Segment size = 100",
         "xlabel": "Number of segments",
         "ax": axes[0, 1],
         "type": "random",
         "x": "m",
     },
     {
-        "title": "Adversarial: Number of segments = 1000",
-        "xlabel": "Max segment size",
+        "title": "Adversarial: Number of segments = 100",
+        "xlabel": "Segment size",
         "ax": axes[1, 0],
         "type": "adversarial",
-        "x": "shape_max",
+        "x": "shp_max",
     },
     {
-        "title": "Adversarial: Max segment size = 1000",
+        "title": "Adversarial: Segment size = 100",
         "xlabel": "Number of segments",
         "ax": axes[1, 1],
         "type": "adversarial",
@@ -75,13 +75,6 @@ for exp in experiments:
             linewidth=2,
             markersize=6,
             zorder=3,
-        )
-        ax.fill_between(
-            points[exp["x"]],
-            points["ci_lo"],
-            points["ci_hi"],
-            color=colors[variant],
-            alpha=0.15,
         )
 
     ax.set(

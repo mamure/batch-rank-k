@@ -4,10 +4,12 @@ import "../src/shared"
 -- We prepend every array with a dummy value (-1) to avoid empty arrays in the input and output.
 -- These are removed/added before and after the actual computation.
 def main [m] (shp: [m]i64) : []i64 =
-    let shp = shp[1 : m]
-    let flat = (replicate (reduce (+) 0i64 shp) 0f32)
-    let res = get_sgm_ids shp flat
-    in [-1] ++ res
+  let shp = shp[1 : m]
+  let n = reduce (+) 0i64 shp
+  let flat = (replicate n 0f32)
+  let (starts, _) = get_sgm_starts_and_ends shp
+  let res = get_sgm_ids starts n
+  in [-1] ++ res
 
 
 -- ==

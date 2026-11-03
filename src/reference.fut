@@ -1,7 +1,7 @@
 import "shared"
 import "../lib/github.com/diku-dk/sorts/radix_sort"
 
--- Reference baseline.
+-- Reference Futhark baseline.
 -- Sort each segment independently, then select its 1-based k-th element.
 
 def reference_i32 [m][n] (ks: [m]i64) (shp: [m]i64) (flat: [n]i32) : [m]i32 =
